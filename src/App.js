@@ -1,11 +1,19 @@
 import React from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      Start here.
-    </div>
-  );
-}
+//Components
+import Header from './components/Header';
+import Home from './components/Home';
+
+//Styles
+import { GlobalStyle } from './GlobalStyle';
+
+
+const App = () => (
+  <div>
+    <Header/>
+    <Home/>
+    <GlobalStyle />
+  </div>
+);
 
 export default App;
