@@ -1,48 +1,60 @@
-import React, {useState, useEffect} from 'react';
-
-//API
-
-import API from '../API';
+import React from 'react';
 
 //Config
 
 import { POSTER_SIZE, BACKDROP_SIZE, IMAGE_BASE_URL } from '../config';
 
 //Components
-
+import HeroImage from './HeroImage';
+import Grid from './Grid';
+import Thumb from './Thumb';
+import Spinner from './Spinner';
+import SearchBar from './SearchBar';
+import Button from './Button';
 //Hook
-
+import { useHomeFetch } from '../hooks/useHomeFetch';
 //Image
 import ImgAlt from "../images/no_image.jpg";
 
 
 const Home = () => {
 
-    const [state, setStage] = useState();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const {state, loading, error, setSearchTerm, searchTerm} = useHomeFetch()
 
-    const fetchMovies = async (page, searchTerm = "") => {
-        try {
-            setError(false);
-            setLoading(true);
+    console.log(state);
 
-            const movies = await API.fetchMovies(searchTerm, page);
-            console.log(movies);
+    return (
+        <>
+        {!searchTerm && state.results[0] ? 
+        <HeroImage 
+            image={`${IMAGE_BASE_URL}${BACKDROP_SIZE}${state.results[0].backdrop_path}`}
+            title={state.results[0].original_title}
+            text={state.results[0].overview}
+        />
+        : null}
+        <SearchBar setSearchTerm={setSearchTerm}/>
+        <Grid header={searchTerm ? 'Search Results' : 'Popular Movies'}>
+            {state.results.map(movie => (
+                <Thumb
+                    key={movie.id}
+                    clickeable
+                    image={
+                        movie.poster_path
+                            ? IMAGE_BASE_URL + POSTER_SIZE + movie.poster_path
+                            : ImgAlt
+                    }
+                    movieId={movie.id}
+                    />
+            ))}
+        </Grid>
+        {loading && <Spinner/>} 
+        {state.page < state.total_pages && !loading && (
+            <Button text='load More' />
+        )}
 
-        } catch (error) {
-            setError(true);
-        }
-    };
+        </>
+    );
 
-    useEffect(() => {
-
-        fetchMovies(1)
-
-    }, [])
-
-    return <div>Home Page</div>
-
-}
+};
 
 export default Home;
